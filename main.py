@@ -16,7 +16,8 @@ from dotenv      import load_dotenv
 from os          import getenv, listdir
 
 
-load_dotenv()
+load_dotenv(dotenv_path="statusx.env")
+
 
 print(Fore.GREEN + "libs imported")
 print("-----------------------" + Fore.MAGENTA)
@@ -32,6 +33,7 @@ logging.basicConfig(level=logging.INFO, filename="statusx.log", filemode="w", fo
 
 def cogsLoad(self):
         curr, total = 0, len(listdir("./cogs")) - 1
+        print("-----------------------")
         for filename in listdir("./cogs"):
             if filename.endswith(".py"):
                 self.load_extension(f"cogs.{filename[:-3]}")
@@ -45,6 +47,12 @@ def cogsLoad(self):
 cogsLoad(bot)
 
 # events
+
+@bot.event
+async def on_resumed():
+    print(Fore.GREEN +  "\n-----------------------\nbot resumed\n-----------------------" + Style.RESET_ALL)
+    logging.info("bot resumed")
+
 
 @bot.event
 async def on_disconnect():
