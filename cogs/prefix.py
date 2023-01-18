@@ -2,8 +2,11 @@ import datetime
 import disnake
 
 
-from disnake.ext import commands
+from disnake.ext          import commands
 from disnake.ext.commands import Cog
+from tools.embeds         import Embed as emb
+
+embed = emb(author_name="StatusX", author_icon="https://cdn.discordapp.com/app-icons/1064149615923953705/9407721c009fd1c0d578592e860f1ffb.png", author_url="https://persifox.space")
 
 class Prefix(Cog):
     def __init__(self, bot: disnake):
@@ -65,20 +68,22 @@ class Prefix(Cog):
                         await member.edit(nick=prefix + " " + nick)
                 except:
                     pass
+            await ctx.send("<a:verify:1065016038170820608>")
+
+            return
 
 
         else:
-            nick = nick.replace(prefix + " ", "")
+        
             await user.edit(nick = nick)
 
-
-        await ctx.send(embed=disnake.Embed(title="<a:loadwave:1065016541239844977>", description=f"||Сменен префикс {user.mention} на '{prefix}'||", colour=disnake.Colour.green(), timestamp=datetime.datetime.now()), ephemeral=True)
+        await ctx.send(embed=embed.generate_type_embed("success", f"||**Успешно сменил префикс {user.mention} на {prefix}**||"))
 
 
 
     @prefix.error
     async def prefix_error(self, ctx, error):
-        await ctx.send(embed=disnake.Embed(title="<a:loadwave:1065016541239844977>", description=f"||```{error}```||", colour=disnake.Colour.red(), timestamp=datetime.datetime.now()), delete_after=10)
+        await ctx.send(embed=embed.generate_type_embed("error", f"||```{error}```||"), delete_after=10)
 
     @slash_prefix.error
     async def prefix_error(self, ctx, error):
