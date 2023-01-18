@@ -12,15 +12,22 @@ class Власть(Cog):
     @commands.command(name="afk")
     async def afk(self, ctx):
 
-        if " [отошел]" in ctx.author.nick:
+        name = str(ctx.author.name)
+        nick = str(ctx.author.nick)
+
+        if " [отошел]" in nick:
             return
 
-        if ctx.author.nick:
-            nick = ctx.author.nick + " [отошел]"
+        if nick != 'None':
+            nick = nick + " [отошел]"
+
         else:
-            nick = ctx.author.name + " [отошел]"
+            nick = name + " [отошел]"
+
         
         await ctx.author.edit(nick = nick)
+
+        await ctx.message.add_reaction(emoji="<a:loadwave:1065016541239844977>")
 
 
     
@@ -29,19 +36,20 @@ class Власть(Cog):
         
         if message.author != self.bot:
 
-            if " [отошел]" in  message.author.nick:
+            if " [отошел]" in  str(message.author.nick):
+
 
                 nick = message.author.nick.replace(" [отошел]", "")
 
                 await message.author.edit(nick = nick)
 
-                await message.add_reaction(emoji="🟢")
+                await message.add_reaction(emoji="<a:verify:1065016038170820608>")
 
 
 
     @afk.error
-    async def timeout_error(self, ctx, error):
-        await ctx.send(embed=disnake.Embed(title="⭕", description="```Бот не имеет разрешений для выполнения. Пересмотрите его права, или поставьте его роль выше вашей.```", colour=disnake.Colour.red(), timestamp=datetime.datetime.now()), delete_after=5)
+    async def afk_error(self, ctx, error):
+        await ctx.send(embed=disnake.Embed(title="<a:loadwave:1065016541239844977>", description=f"||```{error}```||", colour=disnake.Colour.red(), timestamp=datetime.datetime.now()))
 
 
 

@@ -1,15 +1,20 @@
-# main components
+# main components | Этот код полное дерьмище, прошу меня простить
 
 print("loading...")
-print("-----------")
+print("-----------------------")
 
 import disnake
-import datetime
+import threading
+import asyncio
+import logging
+
+import tools.read_command as read
 
 from disnake.ext import commands
 from colorama    import Fore, Style
 from dotenv      import load_dotenv
 from os          import getenv, listdir
+
 
 load_dotenv()
 
@@ -18,7 +23,10 @@ print("-----------------------" + Fore.MAGENTA)
 
 # main class
 
-bot = commands.Bot(command_prefix=commands.when_mentioned_or(getenv("PREFIX")), intents=disnake.Intents.all())
+bot  = commands.Bot(command_prefix=commands.when_mentioned_or(getenv("PREFIX")), intents=disnake.Intents.all())
+read = read.Readinput(bot=bot)
+
+logging.basicConfig(level=logging.INFO, filename="statusx.log", filemode="w", format="%(asctime)s %(levelname)s %(message)s")
 
 # funcs for cogs
 
@@ -32,17 +40,6 @@ def cogsLoad(self):
 
         print("-----------------------" + Style.RESET_ALL)
 
-def cogsReload(self):
-        print(Fore.CYAN + "-----------------------")
-        curr, total = 0, len(listdir("./cogs")) - 1
-        for filename in listdir("./cogs"):
-            if filename.endswith(".py"):
-                self.reload_extension(f"cogs.{filename[:-3]}")
-                curr += 1
-                print(f"cog {filename} reload, {curr}/{total}")
-
-        print("-----------------------" + Style.RESET_ALL)
-
 # load cogs
 
 cogsLoad(bot)
@@ -51,68 +48,44 @@ cogsLoad(bot)
 
 @bot.event
 async def on_disconnect():
-    print(Fore.RED +  "-----------------------\nbot disconnected or connection failed\n-----------------------" + Style.RESET_ALL)
+    print(Fore.RED +  "\n-----------------------\nbot disconnected or connection failed\n-----------------------" + Style.RESET_ALL)
+    logging.warning("bot disconnected")
 
+@bot.event
+async def on_connect():
+    print(Fore.GREEN +  "\n-----------------------\nbot connected\n-----------------------" + Style.RESET_ALL)
+    logging.info("bot connected")
+
+@bot.event
+async def on_error(type, event):
+    print(Fore.RED +  "\n-----------------------\n error event saved to statusx.log \n-----------------------" + Style.RESET_ALL)
+    logging.error(f"{type}:\n{event}")
 
 @bot.event
 async def on_ready():
-    
+
     print(Fore.CYAN + f"Starting as {bot.user} (ID: {bot.user.id})")
     print("-----------------------" + Style.RESET_ALL)
     print(Fore.GREEN + "Started!")
     print("-----------------------" + Style.RESET_ALL)
 
-
-    await bot.change_presence(status=disnake.Status.idle, activity=disnake.Activity(type=disnake.ActivityType.streaming, name=f"persifox.space"))
+    await bot.change_presence(status=disnake.Status.idle, activity=disnake.Streaming(name="persifox.space", url="https://twitch.com/"))
     
+    # async cmd input
+    threading.Thread(target=forever, name="CMD").start()
 
     print(Fore.LIGHTCYAN_EX + "Waiting for input")
     print("-----------------------" + Style.RESET_ALL)
+    
+    logging.info("bot ready")
 
-    # input
 
-    while True:
-        read = input(">")
+def forever():
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(read.readinput())
+    loop.close()
 
-        if read == "cogsreload":
-            cogsReload(bot)
-
-        elif read == "help":
-            print(Fore.GREEN + "cogsreload - reload all cogs\nstop - disconnecting bot and close session\ninfo - get info from discord\nreload - reload connection\nswitch - switch token" + Style.RESET_ALL)
-
-        elif read == "stop":
-            print(Fore.YELLOW + "disconnecting..." + Style.RESET_ALL)
-            await bot.close()
-            break
-
-        elif read == "reload":
-            print(Fore.YELLOW + "reloading..." + Style.RESET_ALL)
-            bot.clear()
-            print(Fore.GREEN + "done" + Style.RESET_ALL)
-            
-        elif read == "switch":
-            await bot.start(token=input(Fore.CYAN + "token\n" + Style.RESET_ALL + ">>>"))
-            break
-
-        elif read == "info":
-            print(Fore.GREEN + f"""
-            bot name: {bot.user}  | id: {bot.user.id}
-            owner:    {bot.owner} | id: {bot.owner_id}
-            status:   {bot.status}
-            limit:    {bot.session_start_limit.reset_time}
-            ============================================
-            guilds:   {len(bot.guilds)}
-            users:    {len(bot.users)}
-            emojis:   {len(bot.emojis)}
-            stickers: {len(bot.stickers)}
-            ----------------
-            {datetime.datetime.now().strftime("%d-%m-%Y %H:%M")}
-            """ + Style.RESET_ALL)
-        
-        else:
-            print(Fore.YELLOW + "unknow command. Type 'help' for get info about commands" + Style.RESET_ALL)
 
 
 
 bot.run(getenv("TOKEN"))
-
