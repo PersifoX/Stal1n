@@ -30,8 +30,17 @@ class Embed():
         self.author_url  = author_url
         self.author_icon = author_icon
 
-    def generate_embed(self, title: str, description: str, color = disnake.Colour.blurple(), thumbnail: str = None, image: str = None,  timestamp = datetime.datetime.now()):
+    def generate_embed(
+        self,
+       title: str,
+       description: str,
+       color = disnake.Colour.blurple(),
+       thumbnail: str = None,
+       image: str = None,
+       timestamp = datetime.datetime.now()
+    ):
 
+        
         embed = disnake.Embed(
             title=title,
             description=description,
@@ -54,7 +63,12 @@ class Embed():
 
         return embed
 
-    def generate_type_embed(self, type: str, description: str, timestamp = datetime.datetime.now()):
+    def generate_type_embed(
+        self,
+        type: str,
+        description: str,
+        timestamp = datetime.datetime.now()
+    ):
         
         
         embed = disnake.Embed(
