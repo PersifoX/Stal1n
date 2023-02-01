@@ -2,20 +2,26 @@ import disnake
 import datetime
 
 
-Error_embed = {
-    "title": "**Error**",
-    "colour": disnake.Colour.red(),
+Embed = {
+    "error": {
+        "title": "**Error**",
+        "colour": disnake.Colour.red(),
+    },
+    "warn": {
+        "title": "**Warning**",
+        "colour": disnake.Colour.yellow(),
+    },
+    "success": {
+        "title": "**Success**",
+        "colour": disnake.Colour.green(),
+    },
+    "info": {
+        "title": "**Info**",
+        "colour": disnake.Colour.blurple(),
+    },  
 }
 
-Warn_embed = {
-    "title": "**Warning**",
-    "colour": disnake.Colour.yellow(),
-}
 
-Success_embed = {
-    "title": "**Success**",
-    "colour": disnake.Colour.green(),
-}
 
 class Embed():
     def __init__(self, author_name, author_url, author_icon):
@@ -50,33 +56,12 @@ class Embed():
 
     def generate_type_embed(self, type: str, description: str, timestamp = datetime.datetime.now()):
         
-        if type == "error":
-            embed = disnake.Embed(
-            title=Error_embed["title"],
-            description=description,
-            colour=Error_embed["colour"],
-            timestamp=timestamp
-        )
-        elif type == "warn":
-            embed = disnake.Embed(
-            title=Warn_embed["title"],
-            description=description,
-            colour=Warn_embed["colour"],
-            timestamp=timestamp
-        )
-        elif type == "success":
-            embed = disnake.Embed(
-            title=Success_embed["title"],
-            description=description,
-            colour=Success_embed["colour"],
-            timestamp=timestamp
-        )
         
-        if self.author_url and self.author_name and self.author_icon:
-            embed.set_author(
-                name     = self.author_name,
-                icon_url = self.author_icon,
-                url      = self.author_url
-            )
+        embed = disnake.Embed(
+        title=Embed[type]["title"],
+        description=description,
+        colour=Embed[type]["colour"],
+        timestamp=timestamp
+        )
 
         return embed
